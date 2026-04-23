@@ -1,43 +1,108 @@
-# FFmpegKit ![GitHub release](https://img.shields.io/badge/release-v6.0-blue.svg) ![Maven Central](https://img.shields.io/maven-central/v/com.arthenica/ffmpeg-kit-min) ![CocoaPods](https://img.shields.io/cocoapods/v/ffmpeg-kit-ios-min) ![pub](https://img.shields.io/pub/v/ffmpeg_kit_flutter.svg) ![npm](https://img.shields.io/npm/v/ffmpeg-kit-react-native.svg)
+# ffmpeg-kit-8.1 ![FFmpeg](https://img.shields.io/badge/FFmpeg-8.1-blue.svg) ![Platform](https://img.shields.io/badge/platform-visionOS%202.0%2B-purple.svg) ![Built](https://img.shields.io/badge/built-April%202026-green.svg)
 
-## Notice
-FFmpegKit has been officially retired. There will be no further `ffmpeg-kit` releases.
-
-See [Saying Goodbye to FFmpegKit @ medium](https://medium.com/@tanersener/saying-goodbye-to-ffmpegkit-33ae939767e1) to learn why we made this decision.
-
-All previously released `ffmpeg-kit` binaries will be removed according to the following schedule.
-
-| FFmpegKit Version |  Available Until   |
-|:-----------------:|:------------------:|
-|   Less than 6.0   | February 1st, 2025 |
-|        6.0        |  April 1st, 2025   |
-
-Thank you for your support and interest in this project.
-
-If you're looking for a replacement, please check out the community-maintained forks available through the package managers below.
-
-|                          Platform                           |
-|:-------------------------------------------------------:|
-| [Android](https://central.sonatype.com/search?q=ffmpeg+kit) |
-| [Flutter](https://pub.dev/packages?q=ffmpeg+kit) |
-| [React Native](https://www.npmjs.com/search?q=ffmpeg%20kit) |
+> **Community fork of FFmpegKit — updated to FFmpeg 8.1 with native visionOS / xros build support and prebuilt XCFrameworks.**
+>
+> The upstream `ffmpeg-kit` project was retired in 2023 (last release: 6.0). This fork picks up where it left off,
+> targeting Apple Vision Pro (visionOS 2.0+) as a first-class platform alongside the original iOS / macOS / tvOS support.
 
 <img src="https://github.com/arthenica/ffmpeg-kit/blob/main/docs/assets/ffmpeg-kit-icon-v9.png" width="240">
 
-`FFmpegKit` is a collection of tools to use `FFmpeg`<sup>1</sup> in `Android`, `iOS`, `Linux`, `macOS`, `tvOS`, `Flutter` and `React Native` applications.
+---
 
-It includes scripts to build `FFmpeg` native libraries, a wrapper library to run `FFmpeg`/`FFprobe` commands in
- applications and 8 prebuilt binary packages available at [Github](https://github.com/arthenica/ffmpeg-kit/releases),
- [Maven Central](https://search.maven.org), [CocoaPods](https://cocoapods.org), [pub](https://pub.dev) and [npm](https://www.npmjs.com).
+## What's New in This Fork
 
-### 1. Features
-- Scripts to build FFmpeg native libraries
-- `FFmpegKit` wrapper library to run `FFmpeg`/`FFprobe` commands in applications
-- Supports native platforms: Android, iOS, Linux, macOS and tvOS
+| Area | Detail |
+|------|--------|
+| **FFmpeg version** | Upgraded from 6.0 → **8.1** (`n8.1` tag) |
+| **visionOS / xros** | Native first-class build target (`xros`, `xrsimulator`) |
+| **Prebuilt XCFrameworks** | 6 static XCFrameworks for visionOS — drop-in ready |
+| **Prebuilt macOS CLI** | `ffmpeg`, `ffplay`, `ffprobe` arm64 host binaries for development |
+| **Codec additions** | x264, x265, libvpx-VP9, SVT-AV1, libopus, fdk-aac, zimg, libvmaf |
+| **Build script** | `visionos.sh` — mirrors tvOS pattern, full xros/xrsimulator support |
+
+---
+
+## Prebuilt Binaries (in this repo)
+
+All prebuilt artifacts live under [`prebuilt-visionos/`](prebuilt-visionos/).
+
+### XCFrameworks — visionOS (device + simulator)
+
+```
+prebuilt-visionos/FFmpegXCFrameworks/
+  avcodec.xcframework      # H.264, HEVC, AV1, VP9, ProRes, …
+  avfilter.xcframework     # 300+ filters incl. zscale, vmaf, stereo3d
+  avformat.xcframework     # mux/demux: MOV, MKV, MP4, IAMF, …
+  avutil.xcframework
+  swresample.xcframework
+  swscale.xcframework
+```
+
+- **Platform:** visionOS 2.0+ (arm64 device + arm64 simulator)
+- **SDK:** 26.2
+- **License:** LGPL 3.0 (no GPL libraries enabled in default build)
+
+### macOS CLI — host development tools
+
+```
+prebuilt-visionos/FFmpegCLI/
+  bin/ffmpeg               # macOS arm64
+  bin/ffplay
+  bin/ffprobe
+  include/                 # Full FFmpeg 8.1 headers
+  lib/                     # Static libs for macOS host linking
+```
+
+---
+
+## Enabled Libraries (XCFramework build)
+
+| Category | Libraries |
+|----------|-----------|
+| Video codecs | x264, x265, libvpx (VP8/VP9), SVT-AV1, VideoToolbox |
+| Audio codecs | libopus, fdk-aac, AudioToolbox |
+| Filters / quality | zimg (zscale), libvmaf |
+| System (visionOS) | bzip2, iconv, zlib, AudioToolbox, VideoToolbox |
+
+---
+
+## Build It Yourself
+
+### visionOS (XCFrameworks)
+```bash
+./visionos.sh
+```
+
+### visionOS with specific FFmpeg tag
+```bash
+./visionos.sh --enable-libx264 --enable-libx265 --enable-libvpx \
+              --enable-libsvtav1 --enable-libopus --enable-libfdk-aac
+```
+
+See [`visionos.sh`](visionos.sh) and [`scripts/function-visionos.sh`](scripts/function-visionos.sh) for all options.
+
+### Other platforms (unchanged from upstream)
+```bash
+./ios.sh       # iOS
+./macos.sh     # macOS
+./tvos.sh      # tvOS
+./android.sh   # Android
+```
+
+---
+
+## Vision Pro Notes
+
+For FFmpeg 8.1 command examples and Vision Pro-specific capability guidance, see [docs/VISION_PRO_FFMPEG_8_1.md](docs/VISION_PRO_FFMPEG_8_1.md).
+
+---
+
+## Original Features (preserved)
+
+- Scripts to build FFmpeg native libraries for all Apple platforms + Android + Linux
+- Supports native platforms: Android, iOS, Linux, macOS, tvOS, **visionOS**
 - Supports hybrid platforms: Flutter, React Native
-- Based on FFmpeg `v4.5-dev` or later with optional system and external libraries
-- 8 prebuilt binary packages available at [Github](https://github.com/arthenica/ffmpeg-kit/releases), [Maven Central](https://search.maven.org), [CocoaPods](https://cocoapods.org), [pub](https://pub.dev) and [npm](https://www.npmjs.com)
-- Licensed under `LGPL 3.0` by default, `GPL v3.0` if GPL licensed libraries are enabled
+- Licensed under `LGPL 3.0` by default, `GPL v3.0` if GPL-licensed libraries are enabled
 
 ### 2. Android
 
