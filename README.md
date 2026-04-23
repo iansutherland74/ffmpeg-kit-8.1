@@ -66,6 +66,69 @@ prebuilt-visionos/FFmpegCLI/
 
 ---
 
+## 2D-to-3D Swift Package (visionOS)
+
+The [`visionos-2d-to-3d/`](visionos-2d-to-3d/) directory contains a standalone Swift Package that converts any 2D `CVPixelBuffer` into a side-by-side stereo buffer for Apple Vision Pro using **Depth Anything V2** (CoreML) monocular depth estimation.
+
+### What's included
+
+| File | Purpose |
+|------|---------|
+| `Sources/VisionOS2Dto3D/DepthAnythingEstimator.swift` | CoreML wrapper — runs DepthAnythingV2SmallF16, auto-downscales inputs >640px |
+| `Sources/VisionOS2Dto3D/StereoFrameProcessor.swift` | 2D→SBS stereo pipeline with depth-guided parallax, temporal smoothing, pixel buffer pools |
+| `Package.swift` | Swift Package manifest (visionOS 2.0+) |
+
+### How it works
+
+```
+CVPixelBuffer (2D frame)
+  │
+  ▼
+DepthAnythingEstimator        ← CoreML, Vision, throttled to 6 Hz
+  │  MLMultiArray (depth map)
+  ▼
+StereoFrameProcessor
+  ├─ smoothDepth (Accelerate EMA)
+  ├─ makeNormalizedDepthImage
+  └─ CIBlendWithMask (near/far shift per eye)
+  │
+  ▼
+CVPixelBuffer (SBS stereo)    ← BT.709 tagged, ready for AVSampleBufferVideoRenderer
+```
+
+**Three rendering modes** selected automatically:
+- `disparity == 0` — flat SBS copy (zero ML overhead)
+- Depth available — full depth-guided parallax (`makeStereoSBS`)
+- Warm-up / inference bypass — luminance pseudo-parallax (`makeStereoSBSParallax`)
+
+### Quick start
+
+1. **Add the package** in Xcode: File → Add Package Dependencies → paste this repo URL, set path to `visionos-2d-to-3d/`
+2. **Bundle the model** — add `DepthAnythingV2SmallF16.mlmodelc` to your app target (convert from [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2))
+3. **Process frames:**
+
+```swift
+import VisionOS2Dto3D
+
+let config = MLModelConfiguration()
+config.computeUnits = .all
+let model = try DepthAnythingModelLoader.loadBundledModel(configuration: config)
+let processor = try StereoFrameProcessor(model: model, maxDisparity: 0.035, temporalSmoothing: 0.7)
+let bridge = StereoSampleBufferBridge()
+
+// In your video output loop:
+let stereoFrame = try processor.process(pixelBuffer: videoFrame)
+try bridge.enqueue(pixelBuffer: stereoFrame.stereoPixelBuffer, at: itemTime)
+// Attach bridge.renderer to a RealityKit VideoPlayerComponent
+```
+
+### Requirements
+- visionOS 2.0+ / Xcode 26+
+- `DepthAnythingV2SmallF16.mlmodelc` bundled in the app target
+- Frameworks: CoreML, Vision, CoreImage, AVFoundation, Accelerate (all system, no extra deps)
+
+---
+
 ## Build It Yourself
 
 ### visionOS (XCFrameworks)
