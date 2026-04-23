@@ -47,6 +47,8 @@ See [Android](android) to learn more about `FFmpegKit` for `Android`.
 
 See [Apple](apple) to use `FFmpegKit` on `Apple` platforms (`iOS`, `macOS`, `tvOS`).
 
+For Vision Pro-oriented FFmpeg 8.1 command guidance and capability checks, see [Vision Pro FFmpeg 8.1 Notes](docs/VISION_PRO_FFMPEG_8_1.md).
+
 ### 4. Flutter
 
 See [Flutter](flutter/flutter) to learn more about `FFmpegKit` for `Flutter`.

@@ -1,0 +1,50 @@
+{
+  "FFmpeg Vision Pro Capability Check": {
+    "prefix": "ff-vision-check",
+    "body": [
+      "FF=\"${1:ffmpeg}\"",
+      "$FF -hide_banner -h decoder=hevc | rg -i \"view_ids|MV-HEVC\"",
+      "$FF -hide_banner -muxers | rg -i iamf",
+      "$FF -hide_banner -demuxers | rg -i iamf",
+      "$FF -hide_banner -filters | rg -i -e \"(^| )zscale( |$)|(^| )vmaf( |$)\"",
+      "$FF -hide_banner -filters | rg -i -e \"(^| )v360( |$)|(^| )pan( |$)|(^| )amerge( |$)|iccdetect|iccgen\"",
+      "$FF -hide_banner -demuxers | rg -i -e \"(^| )ass( |$)|(^| )ssa( |$)\"",
+      "$FF -hide_banner -muxers | rg -i -e \"(^| )ass( |$)|(^| )ssa( |$)\"",
+      "$FF -hide_banner -bsfs | rg -i -e \"dovi_rpu|hevc_metadata|hdr10\"",
+      "$FF -hide_banner -h decoder=prores | rg -i vulkan",
+      "$FF -hide_banner -h decoder=dpx | rg -i vulkan",
+      "$FF -hide_banner -hwaccels | rg -i \"videotoolbox|vulkan\""
+    ],
+    "description": "Runtime probe for MV-HEVC decode hints, IAMF, quality filters, subtitle path, metadata bsfs, and hwaccels."
+  },
+  "FFmpeg VR180 SBS -> Vision Pro Prep (FFmpeg 8.1)": {
+    "prefix": "ff-vr180-visionprep",
+    "body": [
+      "ffmpeg -i ${1:input_vr180_sbs.mp4} \\",
+      "  -filter_complex \"[0:v]crop=iw/2:ih:0:0,v360=input=${2:hequirect}:output=hequirect:h_fov=180:v_fov=180[left];[0:v]crop=iw/2:ih:iw/2:0,v360=input=${2:hequirect}:output=hequirect:h_fov=180:v_fov=180[right]\" \\",
+      "  -map \"[left]\" -map \"[right]\" -map 0:a? \\",
+      "  -c:v hevc_videotoolbox -allow_sw 1 -profile:v main10 -tag:v hvc1 \\",
+      "  -c:a copy -movflags +faststart \\",
+      "  -metadata:s:v:0 title=\"Left Eye\" -metadata:s:v:1 title=\"Right Eye\" \\",
+      "  ${3:output_visionpro_prep.mov}"
+    ],
+    "description": "Split SBS, apply VR180 projection per eye, encode dual HEVC tracks. Final Apple spatial recognition may still need post-encode metadata tooling."
+  },
+  "FFmpeg HEVC Metadata Patch (Color/HDR Tags)": {
+    "prefix": "ff-hevc-metadata-patch",
+    "body": [
+      "ffmpeg -i ${1:input.mov} -map 0 -c copy \\",
+      "  -bsf:v hevc_metadata=color_primaries=${2:bt2020}:transfer_characteristics=${3:smpte2084}:matrix_coefficients=${4:bt2020nc}:video_full_range_flag=${5:0} \\",
+      "  ${6:output_tagged.mov}"
+    ],
+    "description": "Patch HEVC VUI color signaling via hevc_metadata bsf without re-encoding."
+  },
+  "FFmpeg Vision Pro Output Verify (ffprobe)": {
+    "prefix": "ff-vision-verify",
+    "body": [
+      "ffprobe -hide_banner -v error -show_entries stream=index,codec_name,codec_tag_string,profile,width,height,pix_fmt,color_space,color_transfer,color_primaries:stream_tags=title -show_streams ${1:output_visionpro_prep.mov}",
+      "ffprobe -hide_banner -v error -select_streams v -show_frames -show_entries frame=side_data_list -of compact ${1:output_visionpro_prep.mov} | rg -i \"stereo|spherical|mastering|content light|dynamic\""
+    ],
+    "description": "Post-encode verification for codec tag, color signaling, eye labels, and frame side-data visibility."
+  }
+}
