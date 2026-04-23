@@ -1,0 +1,14 @@
+prefix=/tmp/ffmpegrk-work/FFmpegCLI
+exec_prefix=${prefix}
+libdir=/tmp/ffmpegrk-work/FFmpegCLI/lib
+includedir=/tmp/ffmpegrk-work/FFmpegCLI/include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 11.14.100
+Requires: libswscale >= 9.5.100, libavformat >= 62.12.100, libavcodec >= 62.28.100, libswresample >= 6.3.100, libavutil >= 60.26.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavfilter -framework OpenGL -framework OpenGL -pthread -lm -lz -L/opt/homebrew/Cellar/cairo/1.18.4/lib -lcairo -L/opt/homebrew/opt/little-cms2/lib -llcms2 -L/opt/homebrew/Cellar/libplacebo/7.360.1/lib -lplacebo -L/opt/homebrew/Cellar/libvmaf/3.1.0/lib -lvmaf -L/opt/homebrew/Cellar/libass/0.17.4_1/lib -lass -framework Metal -framework VideoToolbox -L/opt/homebrew/Cellar/zimg/3.0.6/lib -lzimg -L/opt/homebrew/Cellar/shaderc/2026.1/lib -lshaderc_shared -framework CoreImage -framework AppKit -framework CoreFoundation -framework CoreMedia -framework CoreVideo -framework CoreServices
+Libs.private: 
+Cflags: -I${includedir}

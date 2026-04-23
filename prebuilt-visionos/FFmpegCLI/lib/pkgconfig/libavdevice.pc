@@ -1,0 +1,14 @@
+prefix=/tmp/ffmpegrk-work/FFmpegCLI
+exec_prefix=${prefix}
+libdir=/tmp/ffmpegrk-work/FFmpegCLI/lib
+includedir=/tmp/ffmpegrk-work/FFmpegCLI/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 62.3.100
+Requires: libavfilter >= 11.14.100, libswscale >= 9.5.100, libavformat >= 62.12.100, libavcodec >= 62.28.100, libswresample >= 6.3.100, libavutil >= 60.26.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavdevice -framework Foundation -framework AudioToolbox -framework CoreAudio -lm -framework AVFoundation -framework CoreVideo -framework CoreMedia -framework CoreGraphics -L/opt/homebrew/Cellar/libxcb/1.17.0/lib -lxcb -L/opt/homebrew/Cellar/libxcb/1.17.0/lib -lxcb-shm -L/opt/homebrew/Cellar/libxcb/1.17.0/lib -lxcb-shape -L/opt/homebrew/Cellar/libxcb/1.17.0/lib -lxcb-xfixes -framework AudioToolbox -pthread
+Libs.private: 
+Cflags: -I${includedir}

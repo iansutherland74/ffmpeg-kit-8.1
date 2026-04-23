@@ -1,0 +1,14 @@
+prefix=/tmp/ffmpegrk-work/FFmpegCLI
+exec_prefix=${prefix}
+libdir=/tmp/ffmpegrk-work/FFmpegCLI/lib
+includedir=/tmp/ffmpegrk-work/FFmpegCLI/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 9.5.100
+Requires: libavutil >= 60.26.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswscale -lm -L/opt/homebrew/Cellar/shaderc/2026.1/lib -lshaderc_shared
+Libs.private: 
+Cflags: -I${includedir}
