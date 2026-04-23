@@ -161,6 +161,9 @@ build_apple_architecture_variant_strings() {
   export APPLETVOS_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_APPLETVOS}")"
   export APPLETV_SIMULATOR_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_APPLETVSIMULATOR}")"
   export MACOSX_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_MACOS}")"
+  export ALL_VISIONOS_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_VISIONOS}")"
+  export XROS_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_XROS}")"
+  export XR_SIMULATOR_ARCHITECTURES="$(get_apple_architectures_for_variant "${ARCH_VAR_XRSIMULATOR}")"
 }
 
 #
@@ -656,6 +659,15 @@ get_framework_directory() {
   "${ARCH_VAR_MACOS}")
     echo "bundle-apple-framework-macos${LTS_POSTFIX}"
     ;;
+  "${ARCH_VAR_VISIONOS}")
+    echo "bundle-apple-framework-visionos${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XROS}")
+    echo "bundle-apple-framework-xros${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XRSIMULATOR}")
+    echo "bundle-apple-framework-xrsimulator${LTS_POSTFIX}"
+    ;;
   esac
 }
 
@@ -712,6 +724,15 @@ get_universal_library_directory() {
   "${ARCH_VAR_MACOS}")
     echo "bundle-apple-universal-macos${LTS_POSTFIX}"
     ;;
+  "${ARCH_VAR_VISIONOS}")
+    echo "bundle-apple-universal-visionos${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XROS}")
+    echo "bundle-apple-universal-xros${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XRSIMULATOR}")
+    echo "bundle-apple-universal-xrsimulator${LTS_POSTFIX}"
+    ;;
   esac
 }
 
@@ -749,6 +770,15 @@ get_apple_architecture_variant() {
     ;;
   "${ARCH_VAR_MACOS}")
     echo "macos${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_VISIONOS}")
+    echo "visionos${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XROS}")
+    echo "xros${LTS_POSTFIX}"
+    ;;
+  "${ARCH_VAR_XRSIMULATOR}")
+    echo "xrsimulator${LTS_POSTFIX}"
     ;;
   esac
 }
@@ -799,6 +829,21 @@ get_apple_architectures_for_variant() {
     ;;
   "${ARCH_VAR_MACOS}")
     for index in ${ARCH_ARM64} ${ARCH_X86_64}; do
+      ARCHITECTURES+=" $(get_full_arch_name "${index}") "
+    done
+    ;;
+  "${ARCH_VAR_VISIONOS}")
+    for index in ${ARCH_ARM64} ${ARCH_X86_64} ${ARCH_ARM64_SIMULATOR}; do
+      ARCHITECTURES+=" $(get_full_arch_name "${index}") "
+    done
+    ;;
+  "${ARCH_VAR_XROS}")
+    for index in ${ARCH_ARM64}; do
+      ARCHITECTURES+=" $(get_full_arch_name "${index}") "
+    done
+    ;;
+  "${ARCH_VAR_XRSIMULATOR}")
+    for index in ${ARCH_X86_64} ${ARCH_ARM64_SIMULATOR}; do
       ARCHITECTURES+=" $(get_full_arch_name "${index}") "
     done
     ;;
@@ -926,6 +971,11 @@ build_info_plist() {
     local MINIMUM_OS_VERSION="${TVOS_MIN_VERSION}"
     local SUPPORTED_PLATFORMS="AppleTVOS"
     ;;
+  visionos)
+    local MINIMUM_VERSION_KEY="MinimumOSVersion"
+    local MINIMUM_OS_VERSION="${VISIONOS_MIN_VERSION}"
+    local SUPPORTED_PLATFORMS="XROS"
+    ;;
   macos)
     local MINIMUM_VERSION_KEY="LSMinimumSystemVersion"
     local MINIMUM_OS_VERSION="${MACOS_MIN_VERSION}"
@@ -977,6 +1027,9 @@ get_default_sdk_name() {
   tvos)
     echo "appletvos"
     ;;
+  visionos)
+    echo "xros"
+    ;;
   macos)
     echo "macosx"
     ;;
@@ -996,6 +1049,9 @@ get_sdk_name() {
     tvos)
       echo "appletvos"
       ;;
+    visionos)
+      echo "xros"
+      ;;
     macos)
       echo "macosx"
       ;;
@@ -1008,6 +1064,9 @@ get_sdk_name() {
       ;;
     tvos)
       echo "appletvsimulator"
+      ;;
+    visionos)
+      echo "xrsimulator"
       ;;
     macos)
       echo "macosx"
@@ -1024,6 +1083,9 @@ get_sdk_name() {
       ;;
     tvos)
       echo "appletvsimulator"
+      ;;
+    visionos)
+      echo "xrsimulator"
       ;;
     esac
     ;;
@@ -1046,6 +1108,9 @@ get_min_version_cflags() {
     tvos)
       echo "-mappletvos-version-min=$(get_min_sdk_version)"
       ;;
+    visionos)
+      echo ""
+      ;;
     macos)
       echo "-mmacosx-version-min=$(get_min_sdk_version)"
       ;;
@@ -1058,6 +1123,9 @@ get_min_version_cflags() {
       ;;
     tvos)
       echo "-mappletvsimulator-version-min=$(get_min_sdk_version)"
+      ;;
+    visionos)
+      echo ""
       ;;
     macos)
       echo "-mmacosx-version-min=$(get_min_sdk_version)"
@@ -1074,6 +1142,9 @@ get_min_version_cflags() {
       ;;
     tvos)
       echo "-mappletvsimulator-version-min=$(get_min_sdk_version)"
+      ;;
+    visionos)
+      echo ""
       ;;
     esac
     ;;
@@ -1095,6 +1166,9 @@ get_min_sdk_version() {
       ;;
     tvos)
       echo "${TVOS_MIN_VERSION}"
+      ;;
+    visionos)
+      echo "${VISIONOS_MIN_VERSION}"
       ;;
     macos)
       echo "${MACOS_MIN_VERSION}"
@@ -1290,7 +1364,8 @@ create_libiconv_system_package_config() {
   # AFTER XCODE 15.0, libcharset DOES NOT CONTAIN ALL ARCHITECTURES WE SUPPORT
   if [[ -n "$DETECTED_IOS_SDK_VERSION" && $(compare_versions "$DETECTED_IOS_SDK_VERSION" "17.0") -ge 0 ]] ||
    [[ -n "$DETECTED_MACOS_SDK_VERSION" && $(compare_versions "$DETECTED_MACOS_SDK_VERSION" "14.0") -ge 0 ]] ||
-   [[ -n "$DETECTED_TVOS_SDK_VERSION" && $(compare_versions "$DETECTED_TVOS_SDK_VERSION" "17.0") -ge 0 ]]; then
+   [[ -n "$DETECTED_TVOS_SDK_VERSION" && $(compare_versions "$DETECTED_TVOS_SDK_VERSION" "17.0") -ge 0 ]] ||
+   [[ -n "$DETECTED_VISIONOS_SDK_VERSION" && $(compare_versions "$DETECTED_VISIONOS_SDK_VERSION" "1.0") -ge 0 ]]; then
     local _REQUIRES_LIBS="-liconv"
   else
     local _REQUIRES_LIBS="-liconv -lcharset"

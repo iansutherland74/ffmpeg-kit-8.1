@@ -43,9 +43,9 @@ It includes scripts to build `FFmpeg` native libraries, a wrapper library to run
 
 See [Android](android) to learn more about `FFmpegKit` for `Android`.
 
-### 3. iOS, macOS, tvOS
+### 3. iOS, macOS, tvOS, visionOS
 
-See [Apple](apple) to use `FFmpegKit` on `Apple` platforms (`iOS`, `macOS`, `tvOS`).
+See [Apple](apple) to use `FFmpegKit` on `Apple` platforms (`iOS`, `macOS`, `tvOS`, `visionOS`).
 
 For Vision Pro-oriented FFmpeg 8.1 command guidance and capability checks, see [Vision Pro FFmpeg 8.1 Notes](docs/VISION_PRO_FFMPEG_8_1.md).
 
@@ -63,7 +63,7 @@ See [React Native](react-native) to learn more about `FFmpegKit` for `React Nati
 
 ### 7. Build Scripts
 
-Use `android.sh`, `ios.sh`, `linux.sh`, `macos.sh` and `tvos.sh` to build `FFmpegKit` for each native platform.
+Use `android.sh`, `ios.sh`, `linux.sh`, `macos.sh`, `tvos.sh` and `visionos.sh` to build `FFmpegKit` for each native platform.
 
 All scripts support additional options to enable optional libraries and disable platform architectures. See
 [Building](https://github.com/arthenica/ffmpeg-kit/wiki/Building) wiki page for the details.
